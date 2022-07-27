@@ -63,14 +63,6 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -80,41 +72,19 @@ class _MyHomePageState extends State<MyHomePage> {
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
-            ),
+          children: const [
             Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headline4,
+              'You have pushed the button this many times:',
             ),
           ],
         ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          // Datas.gerarParcelaDiaSemana(
-          //   nroparcelas: 2,
-          //   idParcelaItem: 1,
-          //   mesSeguinte: false,
-          //   ordsemana: 2,
-          //   diaDoVencimentoFixo: 'E',
-          // );
-
-          var now = DateTime.now();
-          String formatDate(DateTime dateTime) =>
-              DateFormat('dd MMM').format(dateTime);
-
-          var firstOfMonth = DateTime(now.year, now.month, 1);
-          var firstMonday = firstOfMonth.addCalendarDays(
-              (7 - (firstOfMonth.weekday - DateTime.monday)) % 7);
-          var currentMonday = firstMonday;
-          while (currentMonday.month == now.month) {
-            var nextMonday = currentMonday.addCalendarDays(7);
-            var nextSunday = nextMonday.addCalendarDays(-1);
-            print('${formatDate(currentMonday)} - ${formatDate(nextSunday)}');
-            currentMonday = nextMonday;
-          }
+          Datas.gerarParcelaDiaFixo(
+            diasFixos: '15;30;',
+            nroparcelas: 2,
+          );
         },
         tooltip: 'Increment',
         child: const Icon(Icons.add),
