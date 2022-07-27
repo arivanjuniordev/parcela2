@@ -144,21 +144,29 @@ class Datas {
     int carencia = 0,
     int ateDia = 0,
     bool mesSeguinte = false,
+    int nroparcelas = 1,
   }) {
-    DateTime dueDate;
-    DateTime nowDate = DateTime.now();
+    DateTime nowDate = DateTime.now().add(Duration(days: carencia));
 
-    if (dtinvalida) {
-      dueDate = DateTime(nowDate.year, nowDate.month + 1);
-    } else {
-      dueDate = DateTime(nowDate.year, nowDate.month + 1)
-          .subtract(const Duration(days: 1));
+    List<DateTime> datesVencimento = [];
+
+    if (mesSeguinte) {
+      nowDate = addMonths(nowDate, 1);
     }
 
-    if ((mesSeguinte) && (dueDate.day <= ateDia)) {
-      dueDate = DateTime(dueDate.year, dueDate.month + 1);
-    } else if ((mesSeguinte) && (dueDate.day > ateDia)) {
-      dueDate = DateTime(dueDate.year, dueDate.month + 2);
+    if (nowDate.day > ateDia) {
+      nowDate = addMonths(nowDate, 1);
+    }
+
+    for (int i = 1; i <= nroparcelas; i++) {
+      if (nowDate.day < ateDia) {
+        nowDate = addMonths(nowDate, 1);
+      } else {
+        nowDate = DateTime(nowDate.year, nowDate.month, ateDia);
+      }
+
+      datesVencimento.add(nowDate);
+      nowDate = addMonths(nowDate, 1);
     }
   }
 }
