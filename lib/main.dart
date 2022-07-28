@@ -81,9 +81,9 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          Datas.gerarParcelaDiaFixo(
-            diasFixos: '15;30;',
+          Datas.gerarParcelaPorPeriodo(
             nroparcelas: 2,
+            ateDia: 15,
           );
         },
         tooltip: 'Increment',

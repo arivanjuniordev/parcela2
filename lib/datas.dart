@@ -1,6 +1,7 @@
 import 'dart:math';
 
 class Datas {
+  //ok
   static void gerarParcelaNormal({
     int nroparcelas = 1,
     int carencia = 0,
@@ -17,6 +18,7 @@ class Datas {
     }
   }
 
+//errado
   static void gerarParcelaDiaFixo({
     int nroparcelas = 1,
     int dtinvalida = 0,
@@ -68,6 +70,7 @@ class Datas {
     final tt = datesVencimento;
   }
 
+//ok
   static void gerarParcelaDiaSemana({
     int nroparcelas = 1,
     int carencia = 0,
@@ -138,15 +141,15 @@ class Datas {
     }
   }
 
+//errado
   static void gerarParcelaPorPeriodo({
     bool dtinvalida = false,
-    String diasFixos = '',
-    int carencia = 0,
-    int ateDia = 0,
+    required List<int> ateDia,
+    required List<int> venc,
     bool mesSeguinte = false,
     int nroparcelas = 1,
   }) {
-    DateTime nowDate = DateTime.now().add(Duration(days: carencia));
+    DateTime nowDate = DateTime.now();
 
     List<DateTime> datesVencimento = [];
 
