@@ -1,7 +1,6 @@
 import 'dart:math';
 
 class Datas {
-  //ok
   static void gerarParcelaNormal({
     int nroparcelas = 1,
     int carencia = 0,
@@ -18,7 +17,6 @@ class Datas {
     }
   }
 
-//errado
   static void gerarParcelaDiaFixo({
     int nroparcelas = 1,
     int dtinvalida = 0,
@@ -28,8 +26,7 @@ class Datas {
   }) {
     final dias = diasFixos.substring(0, diasFixos.length - 1);
 
-    final List<int> listDiasFixos =
-        dias.split(';').map((e) => int.parse(e)).toList();
+    final List<int> listDiasFixos = dias.split(';').map((e) => int.parse(e)).toList();
 
     listDiasFixos.sort();
 
@@ -37,9 +34,7 @@ class Datas {
 
     List<DateTime> datesVencimento = [];
 
-    var maiorDia = listDiasFixos.last;
-
-    if (nowDate.day <= maiorDia) {
+    if (nowDate.day >= listDiasFixos.last) {
       nowDate = DateTime(nowDate.year, nowDate.month + 1, 1);
     }
 
@@ -47,30 +42,20 @@ class Datas {
       nowDate = addMonths(nowDate, 1);
     }
 
-    DateTime dueDate = nowDate;
-
-    while (datesVencimento.length < nroparcelas) {
-      for (int i = 0; i < diasFixos.length; i++) {
-        if (datesVencimento.length == nroparcelas) {
-          break;
-        }
-
-        if ((dueDate.month == nowDate.month) &&
-            (dueDate.day <= listDiasFixos[i])) {
-          dueDate = DateTime(nowDate.year, nowDate.month, listDiasFixos[i]);
-          datesVencimento.add(dueDate);
-        } else {
-          nowDate = DateTime(nowDate.year, nowDate.month + 1, 1);
-          dueDate = DateTime(nowDate.year, nowDate.month + 1, 1);
-          break;
+    while (datesVencimento.length != nroparcelas) {
+      for (int i = 0; i < listDiasFixos.length; i++) {
+        if (datesVencimento.length == nroparcelas) break;
+        if (nowDate.day <= listDiasFixos[i]) {
+          nowDate = DateTime(nowDate.year, nowDate.month, listDiasFixos[i]);
+          datesVencimento.add(nowDate);
         }
       }
+      nowDate = DateTime(nowDate.year, nowDate.month + 1, 1);
     }
 
     final tt = datesVencimento;
   }
 
-//ok
   static void gerarParcelaDiaSemana({
     int nroparcelas = 1,
     int carencia = 0,
@@ -141,47 +126,33 @@ class Datas {
     }
   }
 
-//errado
-  static void gerarParcelaPorPeriodo({
-    bool dtinvalida = false,
-    required List<int> ateDia,
-    required List<int> venc,
+  static void generateParcelaPorPeriodo({
+    required List<PrazoParcela> prazoParcelas,
     bool mesSeguinte = false,
     int nroparcelas = 1,
   }) {
-    DateTime nowDate = DateTime.now();
-
     List<DateTime> datesVencimento = [];
+    DateTime nowDate = DateTime.now();
+    prazoParcelas.sort((a, b) => a.ateDia.compareTo(b.ateDia));
+    final PrazoParcela prazoParcela = prazoParcelas.where((element) => element.ateDia > nowDate.day).first;
+
+    if (nowDate.day > prazoParcela.venc) {
+      nowDate = addMonths(nowDate, 1);
+    }
+
+    nowDate = DateTime(nowDate.year, nowDate.month, prazoParcela.venc);
 
     if (mesSeguinte) {
       nowDate = addMonths(nowDate, 1);
     }
 
-    if (nowDate.day > ateDia) {
-      nowDate = addMonths(nowDate, 1);
-    }
-
-    for (int i = 1; i <= nroparcelas; i++) {
-      if (nowDate.day < ateDia) {
-        nowDate = addMonths(nowDate, 1);
-      } else {
-        nowDate = DateTime(nowDate.year, nowDate.month, ateDia);
-      }
-
+    for (int i = 0; i < nroparcelas; i++) {
       datesVencimento.add(nowDate);
       nowDate = addMonths(nowDate, 1);
     }
-  }
-}
 
-enum WeekDay {
-  monday,
-  tuesday,
-  wednesday,
-  thursday,
-  friday,
-  saturday,
-  sunday,
+    final tt = datesVencimento;
+  }
 }
 
 DateTime getNextWeekDay({required int weekDay, DateTime? specificDate}) {
@@ -192,14 +163,12 @@ DateTime getNextWeekDay({required int weekDay, DateTime? specificDate}) {
   return specificDate.add(Duration(days: remainDays));
 }
 
-List<DateTime> getDatesDays(
-    {required int year, required int month, required int weekday}) {
+List<DateTime> getDatesDays({required int year, required int month, required int weekday}) {
   var firstDayMonth = DateTime(year, month, 1);
 
   List<DateTime> dates = [];
 
-  var firstMonday = firstDayMonth
-      .add(Duration(days: (7 - (firstDayMonth.weekday - weekday)) % 7));
+  var firstMonday = firstDayMonth.add(Duration(days: (7 - (firstDayMonth.weekday - weekday)) % 7));
 
   var currentMonday = firstMonday;
 
@@ -240,11 +209,9 @@ DateTime addMonths(DateTime from, int months) {
   }
   final newDay = min(from.day, daysInMonth(newYear, newMonth));
   if (from.isUtc) {
-    return DateTime.utc(newYear, newMonth, newDay, from.hour, from.minute,
-        from.second, from.millisecond, from.microsecond);
+    return DateTime.utc(newYear, newMonth, newDay, from.hour, from.minute, from.second, from.millisecond, from.microsecond);
   } else {
-    return DateTime(newYear, newMonth, newDay, from.hour, from.minute,
-        from.second, from.millisecond, from.microsecond);
+    return DateTime(newYear, newMonth, newDay, from.hour, from.minute, from.second, from.millisecond, from.microsecond);
   }
 }
 
@@ -256,5 +223,11 @@ int daysInMonth(int year, int month) {
 
 const daysInMonthArray = [0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
 
-bool isLeapYear(int year) =>
-    (year % 4 == 0) && ((year % 100 != 0) || (year % 400 == 0));
+bool isLeapYear(int year) => (year % 4 == 0) && ((year % 100 != 0) || (year % 400 == 0));
+
+class PrazoParcela {
+  final int ateDia;
+  final int venc;
+
+  const PrazoParcela({required this.ateDia, required this.venc});
+}

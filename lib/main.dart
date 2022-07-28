@@ -81,9 +81,12 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          Datas.gerarParcelaPorPeriodo(
+          Datas.generateParcelaPorPeriodo(
             nroparcelas: 2,
-            ateDia: 15,
+            prazoParcelas: [
+              PrazoParcela(ateDia: 15, venc: 15),
+              PrazoParcela(ateDia: 31, venc: 1),
+            ],
           );
         },
         tooltip: 'Increment',
