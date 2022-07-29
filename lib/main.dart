@@ -82,11 +82,17 @@ class _MyHomePageState extends State<MyHomePage> {
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Datas.generateParcelaPorPeriodo(
-            nroparcelas: 2,
-            prazoParcelas: [
-              PrazoParcela(ateDia: 29, venc: 30),
-            ],
-          );
+              nroparcelas: 5,
+              mesSeguinte: false,
+              prazoParcelas: [
+                PrazoParcela(ateDia: 29, venc: 31),
+              ],
+              diaFixoDtVenda: true
+
+              /*  prazoParcelas: [
+
+            ],*/
+              );
           // Datas.gerarParcelaDiaFixo(
           //   diasFixos: '15;30;',
           //   mesSeguinte: false,

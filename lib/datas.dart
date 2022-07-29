@@ -17,12 +17,14 @@ class Datas {
     }
   }
 
+  // OK
   static void gerarParcelaDiaFixo({
     int nroparcelas = 1,
     int dtinvalida = 0,
     String diasFixos = '',
     int carencia = 0,
     bool mesSeguinte = false,
+    bool diaFixoDtVenda = false,
     //DIAFIXODTVENDA
     //Nesta configuração temos a informação se caso vendido no dia que
     // está marcado como vencimento, se será gerado vencimento para o mesmo
@@ -30,8 +32,7 @@ class Datas {
   }) {
     final dias = diasFixos.substring(0, diasFixos.length - 1);
 
-    final List<int> listDiasFixos =
-        dias.split(';').map((e) => int.parse(e)).toList();
+    final List<int> listDiasFixos = dias.split(';').map((e) => int.parse(e)).toList();
 
     listDiasFixos.sort();
 
@@ -39,20 +40,27 @@ class Datas {
 
     List<DateTime> datesVencimento = [];
 
-    if (nowDate.day >= listDiasFixos.last) {
+    if (nowDate.day > listDiasFixos.last) {
       nowDate = DateTime(nowDate.year, nowDate.month + 1, 1);
     }
 
     if (mesSeguinte) {
-      nowDate = addMonths(nowDate, 1);
+      //TODO Inicializar o mes no dia 1, deve ser feito dessa forma.
+      nowDate = DateTime(nowDate.year, nowDate.month + 1, 1);
     }
 
     while (datesVencimento.length != nroparcelas) {
       for (int i = 0; i < listDiasFixos.length; i++) {
         if (datesVencimento.length == nroparcelas) break;
         if (nowDate.day <= listDiasFixos[i]) {
-          nowDate = DateTime(nowDate.year, nowDate.month, listDiasFixos[i]);
-          datesVencimento.add(nowDate);
+          if (!mesSeguinte && (nowDate.day == listDiasFixos[i] && !diaFixoDtVenda)) {
+            if (listDiasFixos[i] == listDiasFixos.last) {
+              break;
+            }
+          } else {
+            nowDate = DateTime(nowDate.year, nowDate.month, listDiasFixos[i]);
+            datesVencimento.add(nowDate);
+          }
         }
       }
       nowDate = DateTime(nowDate.year, nowDate.month + 1, 1);
@@ -135,6 +143,7 @@ class Datas {
     required List<PrazoParcela> prazoParcelas,
     bool mesSeguinte = false,
     int nroparcelas = 1,
+    bool diaFixoDtVenda = false,
   }) {
     //rever
     //  Datas.generateParcelaPorPeriodo(
@@ -145,10 +154,15 @@ class Datas {
     //       );
 
     List<DateTime> datesVencimento = [];
+
     DateTime nowDate = DateTime.now();
-    prazoParcelas.sort((a, b) => a.ateDia.compareTo(b.ateDia));
-    final PrazoParcela prazoParcela =
-        prazoParcelas.where((element) => element.ateDia > nowDate.day).first;
+    late final PrazoParcela prazoParcela;
+    if (prazoParcelas.length > 1) {
+      prazoParcelas.sort((a, b) => a.ateDia.compareTo(b.ateDia));
+      prazoParcela = prazoParcelas.where((element) => element.ateDia > nowDate.day).first;
+    } else {
+      prazoParcela = prazoParcelas.first;
+    }
 
     if (nowDate.day > prazoParcela.venc) {
       nowDate = addMonths(nowDate, 1);
@@ -160,9 +174,16 @@ class Datas {
       nowDate = addMonths(nowDate, 1);
     }
 
+    // vericar data invalida. para pular mes.
     for (int i = 0; i < nroparcelas; i++) {
-      datesVencimento.add(nowDate);
-      nowDate = addMonths(nowDate, 1);
+      if (prazoParcela.venc != nowDate.day && !diaFixoDtVenda) {
+        datesVencimento.add(DateTime(nowDate.year, nowDate.month, 1));
+      } else {
+        datesVencimento.add(nowDate);
+      }
+    /// TODO verificar
+
+         nowDate = addMonths(nowDate, 1);
     }
 
     final tt = datesVencimento;
@@ -177,14 +198,12 @@ DateTime getNextWeekDay({required int weekDay, DateTime? specificDate}) {
   return specificDate.add(Duration(days: remainDays));
 }
 
-List<DateTime> getDatesDays(
-    {required int year, required int month, required int weekday}) {
+List<DateTime> getDatesDays({required int year, required int month, required int weekday}) {
   var firstDayMonth = DateTime(year, month, 1);
 
   List<DateTime> dates = [];
 
-  var firstMonday = firstDayMonth
-      .add(Duration(days: (7 - (firstDayMonth.weekday - weekday)) % 7));
+  var firstMonday = firstDayMonth.add(Duration(days: (7 - (firstDayMonth.weekday - weekday)) % 7));
 
   var currentMonday = firstMonday;
 
@@ -213,7 +232,7 @@ DateTime getDate({
   }
   return result[order - 1];
 }
-
+// Verificar valor da parcelas
 DateTime addMonths(DateTime from, int months) {
   final r = months % 12;
   final q = (months - r) ~/ 12;
@@ -225,11 +244,9 @@ DateTime addMonths(DateTime from, int months) {
   }
   final newDay = min(from.day, daysInMonth(newYear, newMonth));
   if (from.isUtc) {
-    return DateTime.utc(newYear, newMonth, newDay, from.hour, from.minute,
-        from.second, from.millisecond, from.microsecond);
+    return DateTime.utc(newYear, newMonth, newDay, from.hour, from.minute, from.second, from.millisecond, from.microsecond);
   } else {
-    return DateTime(newYear, newMonth, newDay, from.hour, from.minute,
-        from.second, from.millisecond, from.microsecond);
+    return DateTime(newYear, newMonth, newDay, from.hour, from.minute, from.second, from.millisecond, from.microsecond);
   }
 }
 
@@ -241,8 +258,7 @@ int daysInMonth(int year, int month) {
 
 const daysInMonthArray = [0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
 
-bool isLeapYear(int year) =>
-    (year % 4 == 0) && ((year % 100 != 0) || (year % 400 == 0));
+bool isLeapYear(int year) => (year % 4 == 0) && ((year % 100 != 0) || (year % 400 == 0));
 
 class PrazoParcela {
   final int ateDia;
