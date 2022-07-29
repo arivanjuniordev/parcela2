@@ -84,10 +84,14 @@ class _MyHomePageState extends State<MyHomePage> {
           Datas.generateParcelaPorPeriodo(
             nroparcelas: 2,
             prazoParcelas: [
-              PrazoParcela(ateDia: 15, venc: 15),
-              PrazoParcela(ateDia: 31, venc: 1),
+              PrazoParcela(ateDia: 29, venc: 30),
             ],
           );
+          // Datas.gerarParcelaDiaFixo(
+          //   diasFixos: '15;30;',
+          //   mesSeguinte: false,
+          //   nroparcelas: 2,
+          // );
         },
         tooltip: 'Increment',
         child: const Icon(Icons.add),
